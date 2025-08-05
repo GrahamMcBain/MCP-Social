@@ -927,6 +927,7 @@ app.get('/mcp', (req, res) => {
   // Send initial capabilities
   const initMessage = {
     jsonrpc: '2.0',
+    id: 1,
     method: 'initialize',
     params: {
       protocolVersion: '1.0.0',
@@ -961,8 +962,18 @@ app.post('/mcp', async (req, res) => {
   const outgoing: any[] = [];
 
   for (const rpc of incoming) {
+    // If it's a response (no method), ignore it
+    if (!('method' in rpc)) {
+      continue;
+    }
+
     try {
       switch (rpc.method) {
+        case 'listTools': {
+          outgoing.push({ jsonrpc: '2.0', id: rpc.id, result: { tools } });
+          break;
+        }
+
         case 'callTool': {
           const { name, arguments: args } = rpc.params;
           const result = await handleToolCall(name, args, req.headers.authorization ?? '');
