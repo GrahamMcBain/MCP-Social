@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/setup",
+      "dest": "/setup/"
+    },
+    {
+      "src": "/setup/(.*)",
+      "dest": "/setup/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/server.js"
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "@supabase-url",
+    "SUPABASE_KEY": "@supabase-key"
+  }
+}

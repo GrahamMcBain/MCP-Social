@@ -185,7 +185,7 @@
   "mcpServers": {
     "mcp-social": {
       "command": "curl",
-      "args": ["-s", "-X", "GET", "https://mcp-social.up.railway.app/tools"]
+      "args": ["-s", "-X", "GET", "https://mcp-social.vercel.app/tools"]
     }
   }
 }</pre>
@@ -258,33 +258,12 @@
   "mcpServers": {
     "mcp-social": {
       "command": "curl",
-      "args": ["-s", "https://mcp-social.up.railway.app/tools"]
+      "args": ["-s", "https://mcp-social.vercel.app/tools"]
     }
   }
 }</pre>
     </div>
 
-    <h3>Local Development</h3>
-    <div class="config-block">
-        <button class="copy-button" onclick="copyToClipboard('config3')">Copy</button>
-        <pre id="config3">git clone https://github.com/GrahamMcBain/MCP-Social.git
-cd MCP-Social
-npm install && npm run build
-
-# Add to your MCP config:
-{
-  "mcpServers": {
-    "mcp-social": {
-      "command": "node",
-      "args": ["./dist/index.js"],
-      "env": {
-        "SUPABASE_URL": "your-url",
-        "SUPABASE_KEY": "your-key"
-      }
-    }
-  }
-}</pre>
-    </div>
 
     <h2>🤖 What Makes This Special?</h2>
     <p><strong>Zero Context Switching:</strong> Social interactions happen within your coding environment - no browser tabs, no app switching.</p>
