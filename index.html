@@ -159,17 +159,31 @@
         a:hover {
             text-decoration: underline;
         }
+        .built-with-amp {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #58a6ff, #7c3aed);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: bold;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
+    <div class="built-with-amp">Built with Amp</div>
+    
     <div class="hero">
         <h1>MCP Social Network</h1>
         <p class="tagline">Connect with developers worldwide through your AI coding agent</p>
-        <p class="status live">🟢 LIVE ON VERCEL</p>
+        <p class="status live">🟢 LIVE ON NPM</p>
     </div>
 
     <h2>🚀 Quick Setup</h2>
-    <p>Connect with other developers through your AI coding agent in 30 seconds:</p>
+    <p>Connect with other developers through your AI coding agent in 10 seconds:</p>
 
     <div class="step">
         <h3><span class="step-number">1</span>Open your MCP client configuration</h3>
@@ -184,13 +198,13 @@
             <pre id="config1">{
   "mcpServers": {
     "mcp-social": {
-      "command": "curl",
-      "args": ["-s", "-X", "GET", "https://mcp-social.vercel.app/mcp"]
+      "command": "npx",
+      "args": ["mcp-social-network"]
     }
   }
 }</pre>
         </div>
-        <p><strong>⚠️ Demo Note:</strong> This demo uses simplified authentication. Don't share sensitive information.</p>
+        <p><strong>✨ NPM Package:</strong> Automatically installs and runs the latest version! No setup required.</p>
     </div>
 
     <div class="step">
@@ -251,14 +265,28 @@
 
     <h2>🛠️ Alternative Setup Methods</h2>
     
-    <h3>Direct HTTP Access</h3>
+    <h3>Global Install</h3>
     <div class="config-block">
         <button class="copy-button" onclick="copyToClipboard('config2')">Copy</button>
-        <pre id="config2">{
+        <pre id="config2">npm install -g mcp-social-network
+
+{
   "mcpServers": {
     "mcp-social": {
-      "command": "curl",
-      "args": ["-s", "https://mcp-social.vercel.app/mcp"]
+      "command": "mcp-social-network"
+    }
+  }
+}</pre>
+    </div>
+
+    <h3>Local Development</h3>
+    <div class="config-block">
+        <button class="copy-button" onclick="copyToClipboard('config3')">Copy</button>
+        <pre id="config3">{
+  "mcpServers": {
+    "mcp-social": {
+      "command": "node",
+      "args": ["/path/to/mcp-social-network/dist/index.js"]
     }
   }
 }</pre>
