@@ -988,10 +988,18 @@ app.post('/mcp', async (req, res) => {
 
 // GET /mcp - SSE stream (requires existing session ID)
 app.get('/mcp', (req, res) => {
-  const sessionId = req.headers['mcp-session-id'] as string;
+  const sessionId = req.get('mcp-session-id') || req.get('Mcp-Session-Id') || req.headers['mcp-session-id'] as string;
+  
+  console.log('GET /mcp request headers:', req.headers);
+  console.log('Session ID found:', sessionId);
+  console.log('Available sessions:', Array.from(sessions.keys()));
   
   if (!sessionId || !sessions.has(sessionId)) {
-    return res.status(400).json({ error: 'Invalid or missing Mcp-Session-Id header' });
+    return res.status(400).json({ 
+      error: 'Invalid or missing Mcp-Session-Id header',
+      received: sessionId,
+      available: Array.from(sessions.keys())
+    });
   }
 
   res.writeHead(200, {
