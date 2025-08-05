@@ -905,139 +905,109 @@ import crypto from 'crypto';
 
 interface Session {
   id: string;
-  stream: express.Response;
+  stream: express.Response | null;
 }
 
 const sessions = new Map<string, Session>();
 
-// MCP endpoint - handles both GET (SSE) and POST (JSON-RPC)
-app.all('/mcp', async (req, res) => {
-  const accept = req.headers.accept || '';
+// POST /mcp - JSON-RPC requests (always returns JSON)
+app.post('/mcp', async (req, res) => {
+  const msg = req.body;
+  const sessionId = req.headers['mcp-session-id'] as string;
 
-  // Handle POST requests (JSON-RPC from client)
-  if (req.method === 'POST') {
-    const msg = req.body;
-    const sessionId = req.headers['mcp-session-id'] as string;
-
-    try {
-      // Handle initialize request specially
-      if (msg.method === 'initialize') {
-        const newSessionId = crypto.randomUUID();
-        
-        // If client wants SSE response
-        if (accept.includes('text/event-stream')) {
-          res.writeHead(200, {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Access-Control-Allow-Origin': '*',
-            'Mcp-Session-Id': newSessionId
-          });
-
-          sessions.set(newSessionId, { id: newSessionId, stream: res });
-
-          const initResult = {
-            jsonrpc: '2.0',
-            id: msg.id,
-            result: {
-              protocolVersion: '1.0.0',
-              capabilities: {
-                tools: {}
-              },
-              serverInfo: {
-                name: 'mcp-social-network',
-                version: '1.0.0'
-              }
-            }
-          };
-
-          res.write(`data: ${JSON.stringify(initResult)}\n\n`);
-
-          req.on('close', () => {
-            sessions.delete(newSessionId);
-          });
-          return;
-        } else {
-          // Regular JSON response
-          return res.json({
-            jsonrpc: '2.0',
-            id: msg.id,
-            result: {
-              protocolVersion: '1.0.0',
-              capabilities: { tools: {} },
-              serverInfo: { name: 'mcp-social-network', version: '1.0.0' }
-            }
-          });
+  try {
+    // Handle initialize request - always return JSON
+    if (msg.method === 'initialize') {
+      const newSessionId = crypto.randomUUID();
+      
+      // Store session for later SSE connection
+      sessions.set(newSessionId, { id: newSessionId, stream: null });
+      
+      return res.json({
+        jsonrpc: '2.0',
+        id: msg.id,
+        result: {
+          protocolVersion: '1.0.0',
+          capabilities: { tools: {} },
+          serverInfo: { name: 'mcp-social-network', version: '1.0.0' }
         }
-      }
-
-      // Handle other requests
-      const incoming = Array.isArray(msg) ? msg : [msg];
-      const outgoing: any[] = [];
-
-      for (const rpc of incoming) {
-        if (!('method' in rpc)) continue;
-
-        try {
-          switch (rpc.method) {
-            case 'tools/list': {
-              outgoing.push({ jsonrpc: '2.0', id: rpc.id, result: { tools } });
-              break;
-            }
-
-            case 'tools/call': {
-              const { name, arguments: args } = rpc.params;
-              const result = await handleToolCall(name, args, req.headers.authorization ?? '');
-              outgoing.push({ jsonrpc: '2.0', id: rpc.id, result });
-              break;
-            }
-            
-            case 'ping': {
-              outgoing.push({ jsonrpc: '2.0', id: rpc.id, result: 'pong' });
-              break;
-            }
-
-            default:
-              outgoing.push({
-                jsonrpc: '2.0',
-                id: rpc.id,
-                error: { code: -32601, message: `Unknown method ${rpc.method}` }
-              });
-          }
-        } catch (e: any) {
-          outgoing.push({
-            jsonrpc: '2.0',
-            id: rpc.id,
-            error: { code: -32000, message: e.message || 'Internal error' }
-          });
-        }
-      }
-
-      if (outgoing.length === 0) return res.status(204).end();
-      res.json(outgoing.length === 1 ? outgoing[0] : outgoing);
-
-    } catch (error) {
-      res.status(400).json({ error: 'Invalid request' });
+      }).header('Mcp-Session-Id', newSessionId);
     }
+
+    // Handle other requests
+    const incoming = Array.isArray(msg) ? msg : [msg];
+    const outgoing: any[] = [];
+
+    for (const rpc of incoming) {
+      if (!('method' in rpc)) continue;
+
+      try {
+        switch (rpc.method) {
+          case 'tools/list': {
+            outgoing.push({ jsonrpc: '2.0', id: rpc.id, result: { tools } });
+            break;
+          }
+
+          case 'tools/call': {
+            const { name, arguments: args } = rpc.params;
+            const result = await handleToolCall(name, args, req.headers.authorization ?? '');
+            outgoing.push({ jsonrpc: '2.0', id: rpc.id, result });
+            break;
+          }
+          
+          case 'ping': {
+            outgoing.push({ jsonrpc: '2.0', id: rpc.id, result: 'pong' });
+            break;
+          }
+
+          default:
+            outgoing.push({
+              jsonrpc: '2.0',
+              id: rpc.id,
+              error: { code: -32601, message: `Unknown method ${rpc.method}` }
+            });
+        }
+      } catch (e: any) {
+        outgoing.push({
+          jsonrpc: '2.0',
+          id: rpc.id,
+          error: { code: -32000, message: e.message || 'Internal error' }
+        });
+      }
+    }
+
+    if (outgoing.length === 0) return res.status(204).end();
+    res.json(outgoing.length === 1 ? outgoing[0] : outgoing);
+
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid request' });
+  }
+});
+
+// GET /mcp - SSE stream (requires existing session ID)
+app.get('/mcp', (req, res) => {
+  const sessionId = req.headers['mcp-session-id'] as string;
+  
+  if (!sessionId || !sessions.has(sessionId)) {
+    return res.status(400).json({ error: 'Invalid or missing Mcp-Session-Id header' });
   }
 
-  // Handle GET requests (for existing SSE if needed)
-  else if (req.method === 'GET') {
-    const sessionId = crypto.randomUUID();
-    
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
-    });
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Mcp-Session-Id'
+  });
 
-    sessions.set(sessionId, { id: sessionId, stream: res });
+  // Update session with the stream
+  const session = sessions.get(sessionId)!;
+  session.stream = res;
+  sessions.set(sessionId, session);
 
-    req.on('close', () => {
-      sessions.delete(sessionId);
-    });
-  }
+  req.on('close', () => {
+    sessions.delete(sessionId);
+  });
 });
 
 // MCP-compatible HTTP endpoints  
