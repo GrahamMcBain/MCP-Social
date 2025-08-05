@@ -923,15 +923,17 @@ app.post('/mcp', async (req, res) => {
       // Store session for later SSE connection
       sessions.set(newSessionId, { id: newSessionId, stream: null });
       
-      return res.json({
-        jsonrpc: '2.0',
-        id: msg.id,
-        result: {
-          protocolVersion: '1.0.0',
-          capabilities: { tools: {} },
-          serverInfo: { name: 'mcp-social-network', version: '1.0.0' }
-        }
-      }).header('Mcp-Session-Id', newSessionId);
+      return res
+        .set('Mcp-Session-Id', newSessionId)
+        .json({
+          jsonrpc: '2.0',
+          id: msg.id,
+          result: {
+            protocolVersion: '1.0.0',
+            capabilities: { tools: {} },
+            serverInfo: { name: 'mcp-social-network', version: '1.0.0' }
+          }
+        });
     }
 
     // Handle other requests
