@@ -2,22 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/server.js",
+      "src": "src/server.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/setup",
-      "dest": "/setup/"
-    },
-    {
       "src": "/setup/(.*)",
-      "dest": "/setup/$1"
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/server.js"
+      "dest": "/src/server.ts"
     }
   ],
   "env": {
