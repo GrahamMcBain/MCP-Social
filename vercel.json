@@ -11,7 +11,7 @@
       "handle": "filesystem"
     },
     {
-      "src": "/(tools|auth)/(.*)",
+      "src": "/(mcp|tools|auth)/(.*)",
       "dest": "/src/server.ts"
     },
     {

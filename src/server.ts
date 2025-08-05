@@ -900,7 +900,41 @@ async function handleToolCall(name: string, args: any, authHeader: string) {
   }
 }
 
-// MCP-compatible HTTP endpoints
+// MCP Server-Sent Events endpoint for Amp
+app.get('/mcp', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+
+  // Send initial capabilities
+  const initMessage = {
+    jsonrpc: '2.0',
+    method: 'initialize',
+    params: {
+      protocolVersion: '1.0.0',
+      capabilities: {
+        tools: {},
+      },
+      serverInfo: {
+        name: 'mcp-social-network',
+        version: '1.0.0'
+      }
+    }
+  };
+
+  res.write(`data: ${JSON.stringify(initMessage)}\n\n`);
+
+  // Handle client disconnect
+  req.on('close', () => {
+    res.end();
+  });
+});
+
+// MCP-compatible HTTP endpoints  
 app.get('/tools', (req, res) => {
   res.json({ tools });
 });
