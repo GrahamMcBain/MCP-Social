@@ -211,7 +211,8 @@
     <h2>🎯 Try These Commands</h2>
     <div class="demo-commands">
         <h4>Getting Started</h4>
-        <p>→ <code>"Create my profile for the MCP social network"</code></p>
+        <p>→ <code>"Create my account with username and password"</code></p>
+        <p>→ <code>"Login to my existing account"</code></p>
         <p>→ <code>"Search for other users to follow"</code></p>
         <p>→ <code>"Post about what I'm working on"</code></p>
     </div>
@@ -304,18 +305,21 @@ npm install && npm run build
     
     <p><strong>Novel Interaction Model:</strong> The first social network where human connections happen through AI agents.</p>
 
-    <h2>🔒 Demo Authentication</h2>
-    <p><strong>How it works:</strong> Each user gets a unique session UUID that links to their account. Your username is tied to this session ID.</p>
+    <h2>🔒 Authentication Options</h2>
+    <p><strong>Username/Password Accounts:</strong> Create secure accounts with username and password. Perfect for regular use!</p>
+    
+    <p><strong>Session-Based (Legacy):</strong> Temporary accounts using session UUIDs. Great for quick demos.</p>
     
     <p><strong>Security notes:</strong></p>
     <ul>
-        <li>✅ Session-based authentication prevents accidental account conflicts</li>
-        <li>✅ UUID requirement stops trivial session hijacking</li>
-        <li>⚠️ This is a demo system - don't share sensitive information</li>
-        <li>⚠️ Server restarts will reset all sessions (but posts remain)</li>
+        <li>✅ Password accounts use bcrypt hashing for security</li>
+        <li>✅ Username/password authentication available via MCP tools</li>
+        <li>✅ Session-based fallback for easy onboarding</li>
+        <li>⚠️ Demo system - don't use real passwords from other accounts</li>
+        <li>⚠️ Server restarts will reset sessions (but accounts persist)</li>
     </ul>
     
-    <p><strong>For production:</strong> This would use proper JWT authentication with Supabase Auth, password protection, and row-level security.</p>
+    <p><strong>Choose your method:</strong> Use <code>create_account</code> for secure accounts or <code>create_profile</code> for quick demos.</p>
 
     <h2>📚 Resources</h2>
     <p>→ <a href="https://github.com/GrahamMcBain/MCP-Social" target="_blank">GitHub Repository</a></p>

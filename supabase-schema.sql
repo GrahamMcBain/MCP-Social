@@ -7,6 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE users (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   username text UNIQUE NOT NULL CHECK (length(username) >= 3 AND length(username) <= 20),
+  password_hash text,
   bio text CHECK (length(bio) <= 500),
   created_at timestamp with time zone DEFAULT NOW(),
   follower_count integer DEFAULT 0,

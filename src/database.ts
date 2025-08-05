@@ -67,10 +67,10 @@ export class Database {
   }
 
   // User operations
-  async createUser(username: string, bio?: string): Promise<User> {
+  async createUser(username: string, bio?: string, passwordHash?: string): Promise<User> {
     const { data, error } = await this.supabase
       .from('users')
-      .insert({ username, bio })
+      .insert({ username, bio, password_hash: passwordHash })
       .select()
       .single();
 
@@ -79,6 +79,23 @@ export class Database {
         throw new Error(`Username "${username}" is already taken`);
       }
       throw new Error(`Failed to create user: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  async getUserByCredentials(username: string): Promise<{ id: string; username: string; password_hash: string } | null> {
+    const { data, error } = await this.supabase
+      .from('users')
+      .select('id, username, password_hash')
+      .eq('username', username)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') { // no rows returned
+        return null;
+      }
+      throw new Error(`Failed to get user credentials: ${error.message}`);
     }
 
     return data;

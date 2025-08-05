@@ -3,6 +3,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { Database } from './database.js';
@@ -46,7 +47,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Generate new session UUID
+// Generate new session UUID (legacy method)
 app.get('/session/new', (req, res) => {
   const sessionId = randomUUID();
   res.json({ 
@@ -54,6 +55,85 @@ app.get('/session/new', (req, res) => {
     instructions: 'Add this UUID as X-Session-Id header in your MCP requests',
     example: `curl -H "X-Session-Id: ${sessionId}" https://your-server.com/tools/create_profile`
   });
+});
+
+// Authentication endpoints
+app.post('/auth/signup', async (req, res) => {
+  try {
+    const { username, password, bio } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
+    if (username.length < 3 || username.length > 20) {
+      return res.status(400).json({ error: 'Username must be between 3 and 20 characters' });
+    }
+    
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    // Create user
+    const user = await db.createUser(username, bio, passwordHash);
+    
+    // Generate session
+    const sessionId = randomUUID();
+    userSessions.set(sessionId, username);
+    
+    res.status(201).json({
+      message: 'Account created successfully',
+      sessionId,
+      username: user.username,
+      instructions: 'Use this sessionId as X-Session-Id header in your MCP requests'
+    });
+    
+  } catch (error) {
+    res.status(400).json({ 
+      error: error instanceof Error ? error.message : 'Failed to create account' 
+    });
+  }
+});
+
+app.post('/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
+    // Get user credentials
+    const user = await db.getUserByCredentials(username);
+    if (!user || !user.password_hash) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+    
+    // Verify password
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+    
+    // Generate session
+    const sessionId = randomUUID();
+    userSessions.set(sessionId, username);
+    
+    res.json({
+      message: 'Login successful',
+      sessionId,
+      username: user.username,
+      instructions: 'Use this sessionId as X-Session-Id header in your MCP requests'
+    });
+    
+  } catch (error) {
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : 'Login failed' 
+    });
+  }
 });
 
 // Helper function to format posts for display
@@ -127,8 +207,48 @@ function requireAuth(sessionId: string): string {
 // Define tools
 const tools: Tool[] = [
   {
+    name: 'create_account',
+    description: 'Create a new user account with username and password',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'Username (3-20 characters, must be unique)',
+        },
+        password: {
+          type: 'string',
+          description: 'Password (minimum 6 characters)',
+        },
+        bio: {
+          type: 'string',
+          description: 'Optional bio (max 500 characters)',
+        },
+      },
+      required: ['username', 'password'],
+    },
+  },
+  {
+    name: 'login',
+    description: 'Login to your existing account',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'Your username',
+        },
+        password: {
+          type: 'string',
+          description: 'Your password',
+        },
+      },
+      required: ['username', 'password'],
+    },
+  },
+  {
     name: 'create_profile',
-    description: 'Create a new user profile',
+    description: 'Create a temporary session-based profile (legacy method)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -362,6 +482,66 @@ const tools: Tool[] = [
 async function handleToolCall(name: string, args: any, sessionId: string) {
   try {
     switch (name) {
+      case 'create_account': {
+        const { username, password, bio } = args as { username: string; password: string; bio?: string };
+        
+        if (username.length < 3 || username.length > 20) {
+          throw new Error('Username must be between 3 and 20 characters');
+        }
+        
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters');
+        }
+        
+        // Hash password
+        const passwordHash = await bcrypt.hash(password, 10);
+        
+        // Create user
+        const user = await db.createUser(username, bio, passwordHash);
+        
+        // Generate session
+        const newSessionId = randomUUID();
+        userSessions.set(newSessionId, username);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `✅ Account created successfully!\n\nUsername: @${user.username}\nBio: ${user.bio || 'No bio yet'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\nSession ID: ${newSessionId}\n\n🔐 Your account is now secured with a password!\n⚠️ Save this session ID for this conversation.\n\nYou can now start posting and following other users!`,
+            },
+          ],
+        };
+      }
+
+      case 'login': {
+        const { username, password } = args as { username: string; password: string };
+        
+        // Get user credentials
+        const user = await db.getUserByCredentials(username);
+        if (!user || !user.password_hash) {
+          throw new Error('Invalid username or password');
+        }
+        
+        // Verify password
+        const isValid = await bcrypt.compare(password, user.password_hash);
+        if (!isValid) {
+          throw new Error('Invalid username or password');
+        }
+        
+        // Generate session
+        const newSessionId = randomUUID();
+        userSessions.set(newSessionId, username);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `✅ Login successful!\n\nWelcome back, @${user.username}!\nSession ID: ${newSessionId}\n\n⚠️ Save this session ID for this conversation.\n\nYou can now access all your social features!`,
+            },
+          ],
+        };
+      }
+
       case 'create_profile': {
         const { username, bio } = args as { username: string; bio?: string };
         
@@ -369,6 +549,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
           throw new Error('Username must be between 3 and 20 characters');
         }
         
+        // For legacy compatibility - create user without password
         const user = await db.createUser(username, bio);
         setSessionUser(sessionId, username);
         
@@ -376,7 +557,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
           content: [
             {
               type: 'text',
-              text: `✅ Profile created successfully!\n\nUsername: @${user.username}\nBio: ${user.bio || 'No bio yet'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\n\nYou can now start posting and following other users!`,
+              text: `✅ Profile created successfully!\n\nUsername: @${user.username}\nBio: ${user.bio || 'No bio yet'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\n\n⚠️ Note: This is a session-based account. For a permanent account, use the signup/login system.\n\nYou can now start posting and following other users!`,
             },
           ],
         };
