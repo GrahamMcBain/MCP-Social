@@ -4,7 +4,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
+
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { Database } from './database.js';
 
@@ -21,8 +21,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 // Initialize database
 const db = new Database(SUPABASE_URL, SUPABASE_KEY);
 
-// Current user context - in hosted version, we'll use sessions
-const userSessions = new Map<string, string>();
+
 
 // Create Express app
 const app = express();
@@ -39,23 +38,14 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     status: 'running',
     endpoints: {
-      tools: '/tools',
-      setup: '/setup',
-      session: '/session/new',
-      health: '/'
+    tools: '/tools',
+    setup: '/setup',
+    health: '/'
     }
   });
 });
 
-// Generate new session UUID (legacy method)
-app.get('/session/new', (req, res) => {
-  const sessionId = randomUUID();
-  res.json({ 
-    sessionId,
-    instructions: 'Add this UUID as X-Session-Id header in your MCP requests',
-    example: `curl -H "X-Session-Id: ${sessionId}" https://your-server.com/tools/create_profile`
-  });
-});
+
 
 // Authentication endpoints
 app.post('/auth/signup', async (req, res) => {
@@ -80,15 +70,9 @@ app.post('/auth/signup', async (req, res) => {
     // Create user
     const user = await db.createUser(username, bio, passwordHash);
     
-    // Generate session
-    const sessionId = randomUUID();
-    userSessions.set(sessionId, username);
-    
     res.status(201).json({
       message: 'Account created successfully',
-      sessionId,
-      username: user.username,
-      instructions: 'Use this sessionId as X-Session-Id header in your MCP requests'
+      username: user.username
     });
     
   } catch (error) {
@@ -118,15 +102,9 @@ app.post('/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
     
-    // Generate session
-    const sessionId = randomUUID();
-    userSessions.set(sessionId, username);
-    
     res.json({
       message: 'Login successful',
-      sessionId,
-      username: user.username,
-      instructions: 'Use this sessionId as X-Session-Id header in your MCP requests'
+      username: user.username
     });
     
   } catch (error) {
@@ -171,37 +149,50 @@ function getTimeAgo(date: Date): string {
   }
 }
 
-// Helper function to validate session ID (must be UUID-like)
-function isValidSessionId(sessionId: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(sessionId);
-}
-
-// Helper function to get or create session user
-function getSessionUser(sessionId: string): string | null {
-  if (!isValidSessionId(sessionId)) {
+// Helper function to parse basic auth
+function parseBasicAuth(authHeader: string): { username: string; password: string } | null {
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
     return null;
   }
-  return userSessions.get(sessionId) || null;
+  
+  try {
+    const base64Credentials = authHeader.slice(6);
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    const [username, password] = credentials.split(':');
+    
+    if (!username || !password) {
+      return null;
+    }
+    
+    return { username, password };
+  } catch {
+    return null;
+  }
 }
 
-function setSessionUser(sessionId: string, username: string): void {
-  if (!isValidSessionId(sessionId)) {
-    throw new Error('Invalid session ID. Please use a valid UUID.');
+// Helper function to authenticate user
+async function authenticateUser(authHeader: string): Promise<string> {
+  const credentials = parseBasicAuth(authHeader);
+  
+  if (!credentials) {
+    throw new Error('Missing or invalid Authorization header. Use Basic authentication with username:password. Create an account first with create_account tool.');
   }
-  userSessions.set(sessionId, username);
-}
-
-// Helper function to require auth
-function requireAuth(sessionId: string): string {
-  if (!isValidSessionId(sessionId)) {
-    throw new Error('Invalid session ID. Please generate a UUID for X-Session-Id header.');
+  
+  const { username, password } = credentials;
+  
+  // Get user credentials
+  const user = await db.getUserByCredentials(username);
+  if (!user || !user.password_hash) {
+    throw new Error('Invalid username or password');
   }
-  const user = getSessionUser(sessionId);
-  if (!user) {
-    throw new Error('Please create a profile first using create_profile(username, bio). Make sure to include a unique UUID in the X-Session-Id header.');
+  
+  // Verify password
+  const isValid = await bcrypt.compare(password, user.password_hash);
+  if (!isValid) {
+    throw new Error('Invalid username or password');
   }
-  return user;
+  
+  return username;
 }
 
 // Define tools
@@ -246,24 +237,7 @@ const tools: Tool[] = [
       required: ['username', 'password'],
     },
   },
-  {
-    name: 'create_profile',
-    description: 'Create a temporary session-based profile (legacy method)',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        username: {
-          type: 'string',
-          description: 'Username (3-20 characters, must be unique)',
-        },
-        bio: {
-          type: 'string',
-          description: 'Optional bio (max 500 characters)',
-        },
-      },
-      required: ['username'],
-    },
-  },
+
   {
     name: 'get_profile',
     description: 'Get a user profile by username',
@@ -280,7 +254,7 @@ const tools: Tool[] = [
   },
   {
     name: 'update_profile',
-    description: 'Update your profile bio',
+    description: 'Update your profile bio (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -313,7 +287,7 @@ const tools: Tool[] = [
   },
   {
     name: 'post_update',
-    description: 'Post a text update',
+    description: 'Post a text update (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -332,7 +306,7 @@ const tools: Tool[] = [
   },
   {
     name: 'post_code',
-    description: 'Post a code snippet with description',
+    description: 'Post a code snippet with description (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -359,7 +333,7 @@ const tools: Tool[] = [
   },
   {
     name: 'get_feed',
-    description: 'Get your personalized feed (posts from users you follow)',
+    description: 'Get your personalized feed (posts from users you follow, requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -406,7 +380,7 @@ const tools: Tool[] = [
   },
   {
     name: 'follow_user',
-    description: 'Follow a user',
+    description: 'Follow a user (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -420,7 +394,7 @@ const tools: Tool[] = [
   },
   {
     name: 'unfollow_user',
-    description: 'Unfollow a user',
+    description: 'Unfollow a user (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -434,7 +408,7 @@ const tools: Tool[] = [
   },
   {
     name: 'get_following',
-    description: 'Get list of users you are following',
+    description: 'Get list of users you are following (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -442,7 +416,7 @@ const tools: Tool[] = [
   },
   {
     name: 'get_followers',
-    description: 'Get list of your followers',
+    description: 'Get list of your followers (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -450,7 +424,7 @@ const tools: Tool[] = [
   },
   {
     name: 'like_post',
-    description: 'Like a post by post ID',
+    description: 'Like a post by post ID (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -464,7 +438,7 @@ const tools: Tool[] = [
   },
   {
     name: 'unlike_post',
-    description: 'Unlike a post by post ID',
+    description: 'Unlike a post by post ID (requires Basic authentication)',
     inputSchema: {
       type: 'object',
       properties: {
@@ -479,7 +453,7 @@ const tools: Tool[] = [
 ];
 
 // Create tool handler function
-async function handleToolCall(name: string, args: any, sessionId: string) {
+async function handleToolCall(name: string, args: any, authHeader: string) {
   try {
     switch (name) {
       case 'create_account': {
@@ -499,15 +473,11 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
         // Create user
         const user = await db.createUser(username, bio, passwordHash);
         
-        // Generate session
-        const newSessionId = randomUUID();
-        userSessions.set(newSessionId, username);
-        
         return {
           content: [
             {
               type: 'text',
-              text: `✅ Account created successfully!\n\nUsername: @${user.username}\nBio: ${user.bio || 'No bio yet'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\nSession ID: ${newSessionId}\n\n🔐 Your account is now secured with a password!\n⚠️ Save this session ID for this conversation.\n\nYou can now start posting and following other users!`,
+              text: `✅ Account created successfully!\n\nUsername: @${user.username}\nBio: ${user.bio || 'No bio yet'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\n\n🔐 Your account is now secured with a password!\n\nYou can now start posting and following other users!`,
             },
           ],
         };
@@ -528,40 +498,17 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
           throw new Error('Invalid username or password');
         }
         
-        // Generate session
-        const newSessionId = randomUUID();
-        userSessions.set(newSessionId, username);
-        
         return {
           content: [
             {
               type: 'text',
-              text: `✅ Login successful!\n\nWelcome back, @${user.username}!\nSession ID: ${newSessionId}\n\n⚠️ Save this session ID for this conversation.\n\nYou can now access all your social features!`,
+              text: `✅ Login successful!\n\nWelcome back, @${user.username}!\n\nYou can now access all your social features!`,
             },
           ],
         };
       }
 
-      case 'create_profile': {
-        const { username, bio } = args as { username: string; bio?: string };
-        
-        if (username.length < 3 || username.length > 20) {
-          throw new Error('Username must be between 3 and 20 characters');
-        }
-        
-        // For legacy compatibility - create user without password
-        const user = await db.createUser(username, bio);
-        setSessionUser(sessionId, username);
-        
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `✅ Profile created successfully!\n\nUsername: @${user.username}\nBio: ${user.bio || 'No bio yet'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\n\n⚠️ Note: This is a session-based account. For a permanent account, use the signup/login system.\n\nYou can now start posting and following other users!`,
-            },
-          ],
-        };
-      }
+
 
       case 'get_profile': {
         const { username } = args as { username: string };
@@ -583,7 +530,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'update_profile': {
         const { bio } = args as { bio: string };
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         
         if (bio.length > 500) {
           throw new Error('Bio must be 500 characters or less');
@@ -632,7 +579,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'post_update': {
         const { content, tags } = args as { content: string; tags?: string[] };
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         
         if (content.length > 280) {
           throw new Error('Post content must be 280 characters or less');
@@ -660,7 +607,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
           description: string; 
           tags?: string[] 
         };
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         
         if (description.length > 280) {
           throw new Error('Description must be 280 characters or less');
@@ -683,7 +630,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'get_feed': {
         const { limit = 20 } = args as { limit?: number };
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         
         const userId = await db.getUserId(username);
         if (!userId) throw new Error('User not found');
@@ -775,7 +722,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'follow_user': {
         const { username } = args as { username: string };
-        const currentUsername = requireAuth(sessionId);
+        const currentUsername = await authenticateUser(authHeader);
         
         const userId = await db.getUserId(username);
         const currentUserId = await db.getUserId(currentUsername);
@@ -801,7 +748,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'unfollow_user': {
         const { username } = args as { username: string };
-        const currentUsername = requireAuth(sessionId);
+        const currentUsername = await authenticateUser(authHeader);
         
         const userId = await db.getUserId(username);
         const currentUserId = await db.getUserId(currentUsername);
@@ -826,7 +773,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
       }
 
       case 'get_following': {
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         const userId = await db.getUserId(username);
         if (!userId) throw new Error('User not found');
         
@@ -858,7 +805,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
       }
 
       case 'get_followers': {
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         const userId = await db.getUserId(username);
         if (!userId) throw new Error('User not found');
         
@@ -891,7 +838,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'like_post': {
         const { post_id } = args as { post_id: string };
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         
         const userId = await db.getUserId(username);
         if (!userId) throw new Error('User not found');
@@ -915,7 +862,7 @@ async function handleToolCall(name: string, args: any, sessionId: string) {
 
       case 'unlike_post': {
         const { post_id } = args as { post_id: string };
-        const username = requireAuth(sessionId);
+        const username = await authenticateUser(authHeader);
         
         const userId = await db.getUserId(username);
         if (!userId) throw new Error('User not found');
@@ -962,24 +909,12 @@ app.post('/tools/:toolName', async (req, res) => {
   try {
     const { toolName } = req.params;
     const { arguments: args } = req.body;
-    const sessionId = req.headers['x-session-id'] as string;
+    const authHeader = req.headers.authorization || '';
     
-    if (!sessionId) {
-      return res.status(400).json({
-        content: [
-          {
-            type: 'text',
-            text: `❌ Missing X-Session-Id header. Generate one at /session/new or use a UUID.`,
-          },
-        ],
-        isError: true,
-      });
-    }
-    
-    const result = await handleToolCall(toolName, args, sessionId);
+    const result = await handleToolCall(toolName, args, authHeader);
     res.json(result);
   } catch (error) {
-    const statusCode = error instanceof Error && error.message.includes('Invalid session ID') ? 400 : 500;
+    const statusCode = error instanceof Error && error.message.includes('authentication') ? 401 : 500;
     res.status(statusCode).json({
       content: [
         {
