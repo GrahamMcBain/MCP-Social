@@ -3,7 +3,7 @@
 ## 🚀 Deploy to Railway (Recommended)
 
 ### 1. One-Click Deploy
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/MCP-Social)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github.com/GrahamMcBain/MCP-Social)
 
 ### 2. Manual Deploy
 

@@ -4,7 +4,7 @@
 
 A fully-featured social network built for the Model Context Protocol (MCP), enabling developers to connect, share, and engage without leaving their coding environment.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/MCP-Social)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github.com/GrahamMcBain/MCP-Social)
 
 ## 🚀 **One-Click Demo Setup**
 
@@ -99,8 +99,8 @@ Agent: 🌍 Global Feed (3 posts)
 
 ### **Local Development**
 ```bash
-git clone https://github.com/yourusername/mcp-social-network
-cd mcp-social-network
+git clone https://github.com/GrahamMcBain/MCP-Social.git
+cd MCP-Social
 npm install
 npm run build
 
@@ -162,4 +162,4 @@ This MCP Social Network showcases the future of human-computer interaction - whe
 
 ---
 
-Built with ❤️ for the Microsoft Demo • [Deploy Now](https://railway.app/template/MCP-Social) • [Join the Discussion](https://github.com/yourusername/mcp-social-network/discussions)
+Built with ❤️ for the Microsoft Demo • [Deploy Now](https://railway.app/template/github.com/GrahamMcBain/MCP-Social) • [Join the Discussion](https://github.com/GrahamMcBain/MCP-Social/discussions)
