@@ -901,7 +901,19 @@ async function handleToolCall(name: string, args: any, authHeader: string) {
 }
 
 // MCP Server-Sent Events endpoint for Amp
+import crypto from 'crypto';
+
+interface Session {
+  id: string;
+  stream: express.Response;
+}
+
+const sessions = new Map<string, Session>();
+
+// GET /mcp - SSE stream for server→client
 app.get('/mcp', (req, res) => {
+  const sessionId = crypto.randomUUID();
+
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -910,6 +922,8 @@ app.get('/mcp', (req, res) => {
     'Access-Control-Allow-Headers': 'Cache-Control'
   });
 
+  sessions.set(sessionId, { id: sessionId, stream: res });
+
   // Send initial capabilities
   const initMessage = {
     jsonrpc: '2.0',
@@ -917,21 +931,68 @@ app.get('/mcp', (req, res) => {
     params: {
       protocolVersion: '1.0.0',
       capabilities: {
-        tools: {},
+        tools: {}
       },
       serverInfo: {
         name: 'mcp-social-network',
         version: '1.0.0'
-      }
+      },
+      sessionId
     }
   };
 
   res.write(`data: ${JSON.stringify(initMessage)}\n\n`);
 
-  // Handle client disconnect
   req.on('close', () => {
-    res.end();
+    sessions.delete(sessionId);
   });
+});
+
+// POST /mcp - JSON-RPC requests from client→server
+app.post('/mcp', async (req, res) => {
+  const msg = req.body;
+  const sessionId = req.headers['x-session-id'] as string || msg.sessionId || msg.params?.sessionId;
+
+  if (!sessionId || !sessions.has(sessionId)) {
+    return res.status(400).json({ error: 'unknown session' });
+  }
+
+  const incoming = Array.isArray(msg) ? msg : [msg];
+  const outgoing: any[] = [];
+
+  for (const rpc of incoming) {
+    try {
+      switch (rpc.method) {
+        case 'callTool': {
+          const { name, arguments: args } = rpc.params;
+          const result = await handleToolCall(name, args, req.headers.authorization ?? '');
+          outgoing.push({ jsonrpc: '2.0', id: rpc.id, result });
+          break;
+        }
+        
+        case 'ping': {
+          outgoing.push({ jsonrpc: '2.0', id: rpc.id, result: 'pong' });
+          break;
+        }
+
+        default:
+          outgoing.push({
+            jsonrpc: '2.0',
+            id: rpc.id,
+            error: { code: -32601, message: `Unknown method ${rpc.method}` }
+          });
+      }
+    } catch (e: any) {
+      outgoing.push({
+        jsonrpc: '2.0',
+        id: rpc.id,
+        error: { code: -32000, message: e.message || 'Internal error' }
+      });
+    }
+  }
+
+  if (outgoing.length === 0) return res.status(204).end();
+  res.json(outgoing.length === 1 ? outgoing[0] : outgoing);
 });
 
 // MCP-compatible HTTP endpoints  
