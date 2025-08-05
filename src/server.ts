@@ -27,6 +27,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from public directory
+app.use('/setup', express.static('public'));
+
 // Health check endpoint
 app.get('/', (req, res) => {
   res.json({ 
@@ -34,7 +37,8 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     status: 'running',
     endpoints: {
-      mcp: '/mcp',
+      tools: '/tools',
+      setup: '/setup',
       health: '/'
     }
   });
