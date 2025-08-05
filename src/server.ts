@@ -986,36 +986,39 @@ app.post('/mcp', async (req, res) => {
   }
 });
 
-// GET /mcp - SSE stream (requires existing session ID)
+// GET /mcp - SSE stream (create session if none provided)
 app.get('/mcp', (req, res) => {
-  const sessionId = req.get('mcp-session-id') || req.get('Mcp-Session-Id') || req.headers['mcp-session-id'] as string;
-  
   console.log('GET /mcp request headers:', req.headers);
-  console.log('Session ID found:', sessionId);
-  console.log('Available sessions:', Array.from(sessions.keys()));
   
-  if (!sessionId || !sessions.has(sessionId)) {
-    return res.status(400).json({ 
-      error: 'Invalid or missing Mcp-Session-Id header',
-      received: sessionId,
-      available: Array.from(sessions.keys())
-    });
-  }
-
+  // Create new session for direct SSE connection
+  const sessionId = crypto.randomUUID();
+  
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Mcp-Session-Id'
+    'Access-Control-Allow-Headers': 'Content-Type'
   });
 
-  // Update session with the stream
-  const session = sessions.get(sessionId)!;
-  session.stream = res;
-  sessions.set(sessionId, session);
+  sessions.set(sessionId, { id: sessionId, stream: res });
+
+  // Send initialize message immediately
+  const initMessage = {
+    jsonrpc: '2.0',
+    id: 1,
+    result: {
+      protocolVersion: '1.0.0',
+      capabilities: { tools: {} },
+      serverInfo: { name: 'mcp-social-network', version: '1.0.0' },
+      sessionId
+    }
+  };
+
+  res.write(`data: ${JSON.stringify(initMessage)}\n\n`);
 
   req.on('close', () => {
+    console.log('SSE connection closed for session:', sessionId);
     sessions.delete(sessionId);
   });
 });
