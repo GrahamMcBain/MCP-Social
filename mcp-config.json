@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcp-social": {
+      "command": "node",
+      "args": ["/Users/grahammcbain/MSFT-DEMO/dist/index.js"],
+      "env": {
+        "SUPABASE_URL": "https://yunetoevtxyrfzdiixko.supabase.co",
+        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bmV0b2V2dHh5cmZ6ZGlpeGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNTAzODcsImV4cCI6MjA2OTkyNjM4N30.fkCvhi6OezSlLmhDuv4boaD5byMITLzk2UBx_w6z3nY"
+      }
+    }
+  }
+}
