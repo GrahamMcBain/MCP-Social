@@ -1,170 +1,111 @@
-# MCP Social Network
+# MCP Social Network 🚀
 
-> **Connect with developers worldwide through your AI coding agent.**
+A social network accessible only through AI coding agents using the Model Context Protocol (MCP).
 
-A social network where **humans connect with humans** using AI agents as the interface. Built for the Model Context Protocol (MCP), enabling real developers to socialize, share code, and collaborate without leaving their coding environment.
+## Quick Start
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github.com/GrahamMcBain/MCP-Social)
+### Option 1: Run with npx (Recommended)
+```bash
+npx mcp-social-network
+```
 
-## 🚀 **30-Second Setup**
+### Option 2: Install globally
+```bash
+npm install -g mcp-social-network
+mcp-social-network
+```
 
-Add this to your MCP client and start connecting with developers worldwide:
+## Setup in Your AI Agent
+
+Add this to your MCP client configuration:
 
 ```json
 {
   "mcpServers": {
-    "mcp-social": {
-      "command": "curl",
-      "args": ["-s", "https://mcp-social.up.railway.app/tools"]
+    "social": {
+      "command": "npx",
+      "args": ["mcp-social-network"]
     }
   }
 }
 ```
 
-**That's it!** No API keys, no complex setup. Just restart your AI agent and start socializing.
+Or if installed globally:
 
-## ✨ **Features**
-
-### 🔥 **Core Social Features**
-- **Profiles**: Create, view, and update user profiles
-- **Posts**: Share text updates and code snippets with syntax highlighting
-- **Social Graph**: Follow/unfollow users, see followers and following
-- **Feeds**: Personalized feed from followed users + global discovery feed
-- **Engagement**: Like/unlike posts with real-time counters
-- **Discovery**: Search users and explore content
-
-### 🤖 **AI-Native Interface**
-- **15+ MCP Functions**: Complete social API accessible through natural language
-- **Human-to-Human**: Real people connecting via their AI agents
-- **Rich Formatting**: Posts display beautifully in AI agent interfaces  
-- **Session Management**: Persistent user context across interactions
-
-### 🏗️ **Production Ready**
-- **Supabase Backend**: PostgreSQL with real-time triggers and counters
-- **HTTP + MCP Support**: Works with any MCP client or direct API calls
-- **Hosted Option**: Zero-setup deployment for instant demos
-- **Scalable Architecture**: Handles concurrent users efficiently
-
-## 📱 **Demo Experience**
-
-```
-You: "Create my profile for the social network"
-Agent: ✅ Profile created successfully!
-        Username: @demo_user
-        Bio: Building cool stuff with AI
-        You can now start posting and following other users!
-
-You: "Post about my React project"  
-Agent: ✅ Posted successfully!
-        @demo_user (now) [ID: 1a2b3c4d]
-        "Just shipped a React app with real-time collaboration! 🚀"
-        Tags: #react #javascript #webapp
-        ❤️ 0 likes | 💬 0 replies
-
-You: "Show me what other developers are working on"
-Agent: 🌍 Global Feed (3 posts)
-        
-        @alice_codes (2h ago) [ID: 5e6f7g8h]
-        "Built an MCP tool that auto-generates API docs from code!"
-        ❤️ 12 likes | 💬 3 replies
-        
-        ──────────────────────────────────────────────────────
-        
-        @bob_python (4h ago) [ID: 9i0j1k2l]
-        "Finally mastered async/await patterns. Game changer! 🔥"
-        ❤️ 8 likes | 💬 1 reply
+```json
+{
+  "mcpServers": {
+    "social": {
+      "command": "mcp-social-network"
+    }
+  }
+}
 ```
 
-## 🎯 **Why This Matters**
+## Environment Setup
 
-### **Novel Human Connection Model**
-- First social network where humans connect through AI agents
-- Zero context switching - socialize while you code
-- Natural language commands make social interaction effortless
+The server requires Supabase for data storage:
 
-### **Perfect MCP Showcase**
-- Demonstrates MCP's power for building rich, multi-user applications
-- Shows how AI agents can mediate real human connections
-- Proves the potential for agent-native social experiences
+1. Create a [Supabase](https://supabase.com) project
+2. Run the schema: `supabase-schema.sql`
+3. Set environment variables:
 
-### **Developer-Focused Community**
-- Connect with real developers worldwide who share your interests
-- Share code snippets, project updates, and technical discoveries
-- Build professional relationships through your coding environment
-
-## 🛠️ **Quick Setup**
-
-### **For Demo Attendees (Zero Setup)**
-Just add the MCP server URL to your agent config - no installation needed!
-
-### **For Hosting Your Own Instance**
-1. Deploy to Railway (one-click button above)
-2. Add your Supabase environment variables
-3. Share your URL with users
-
-### **For Local Development**
 ```bash
-git clone https://github.com/GrahamMcBain/MCP-Social.git
-cd MCP-Social
-npm install
-npm run build
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Run the server
-npm start
+export SUPABASE_URL=https://your-project.supabase.co
+export SUPABASE_KEY=your-anon-key
 ```
 
-## 📡 **API Reference**
+Or create a `.env` file:
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key
+```
 
-### **MCP Functions**
-- `create_profile(username, bio?)` - Create user profile
-- `get_profile(username)` - View user profile  
-- `post_update(content, tags?)` - Share text update
-- `post_code(code, language, description, tags?)` - Share code snippet
-- `follow_user(username)` - Follow a user
-- `get_feed(limit?)` - Get personalized feed
-- `get_global_feed(limit?)` - Get global feed
-- `like_post(post_id)` - Like a post
-- `search_users(query)` - Find users
-- ...and more!
+## Available Tools
 
-### **HTTP Endpoints** 
-- `GET /` - Health check and server info
-- `GET /tools` - List available MCP functions
-- `POST /tools/:toolName` - Execute MCP function
+- `create_account` - Create a new user account
+- `login` - Login to your account
+- `get_profile` - Get user profiles
+- `update_profile` - Update your bio
+- `search_users` - Find other users
+- `post_update` - Share text updates
+- `post_code` - Share code snippets
+- `get_feed` - Your personalized feed
+- `get_global_feed` - See all public posts
+- `follow_user` / `unfollow_user` - Follow other users
+- `like_post` / `unlike_post` - Interact with posts
 
-## 🏆 **Perfect for Demos**
+## Example Usage
 
-- ✅ **"Wow Factor"**: Novel interaction model that amazes audiences
-- ✅ **Easy Setup**: Hosted version requires zero installation
-- ✅ **Rich Functionality**: Full social network in 15 MCP functions
-- ✅ **Production Quality**: Real database, error handling, scalable architecture
-- ✅ **Viral Potential**: Clear path to developer adoption
+Once connected to your AI agent:
 
-## 🔧 **Tech Stack**
+```
+"Create an account for me with username 'coder123' and a bio about loving TypeScript"
 
-- **Backend**: Node.js + TypeScript + Express
-- **Database**: Supabase (PostgreSQL) with real-time triggers
-- **Protocol**: Model Context Protocol (MCP)
-- **Hosting**: Railway, Vercel, or Heroku
-- **Client**: Any MCP-compatible AI agent
+"Post an update about working on a new React component"
 
-## 📚 **Documentation**
+"Show me the global feed to see what other developers are sharing"
 
-- [Demo Setup Guide](./DEMO_SETUP.md) - How to run the perfect demo
-- [Deployment Guide](./DEPLOYMENT.md) - Hosting and production setup
-- [API Documentation](./API.md) - Complete function reference
-- [Architecture Overview](./ARCHITECTURE.md) - Technical deep dive
+"Follow user 'alice' and then show me my personalized feed"
+```
 
-## 🎉 **Ready to Blow Minds?**
+## Features
 
-This MCP Social Network showcases the future of human-computer interaction - where AI agents become gateways to rich, interactive experiences that were previously impossible.
+- 🔐 **Secure Authentication** - bcrypt password hashing
+- 📝 **Rich Posts** - Text updates and code snippets with syntax highlighting
+- 🏷️ **Tagging System** - Organize posts with hashtags
+- 👥 **Social Features** - Follow users, personalized feeds
+- ❤️ **Engagement** - Like and interact with posts
+- 🔍 **Discovery** - Search users and explore global feeds
 
-**Deploy it, demo it, and watch people's minds get blown! 🚀**
+## Self-Hosting
 
----
+Want to run your own instance? See [DEPLOYMENT.md](DEPLOYMENT.md) for Railway, Vercel, and Docker deployment options.
 
-Built with ❤️ for the Microsoft Demo • [Deploy Now](https://railway.app/template/github.com/GrahamMcBain/MCP-Social) • [Join the Discussion](https://github.com/GrahamMcBain/MCP-Social/discussions)
+## Contributing
+
+Built with TypeScript, Express, Supabase, and the MCP SDK. PRs welcome!
+
+## License
+
+MIT - Share and enjoy! 🎉
