@@ -15,8 +15,10 @@
   ],
   "scripts": {
     "build": "tsc && cp -r public dist/ 2>/dev/null || true",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
+    "start": "node dist/server.js",
+    "start:stdio": "node dist/index.js",
+    "dev": "tsx src/server.ts",
+    "dev:stdio": "tsx src/index.ts",
     "prepublishOnly": "npm run build",
     "prepack": "npm run build"
   },
