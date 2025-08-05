@@ -1,16 +1,14 @@
 # MCP Social Network - Demo Setup Guide
 
-## 🚀 Quick Start (Hosted Version)
+## 🌟 **Connect with Developers Worldwide Through Your AI Agent**
 
-### 1. Server is Hosted and Ready!
-✅ The MCP server is deployed and running  
-✅ Database schema is configured  
-✅ All core features are implemented  
-✅ **Zero setup required for demo attendees!**
+This is a social network where **real humans connect with each other** using their AI coding agents as the interface. Add one line of config, and you can socialize with developers worldwide without leaving your coding environment!
 
-### 2. Super Simple Setup for Demo Attendees
+## 🚀 **30-Second Setup**
 
-**For Amp/Claude Desktop - Just add this configuration:**
+### 1. Add to Your MCP Client
+
+**For Claude Desktop, Amp, or any MCP-compatible agent:**
 
 ```json
 {
@@ -23,65 +21,43 @@
 }
 ```
 
-**That's it! No API keys, no environment variables, no setup required.**
+### 2. Restart Your AI Agent
 
-⚠️ **Demo Note**: This uses a simplified authentication model. Don't share sensitive information.
+### 3. Start Socializing!
 
-### 3. Local Development (Optional)
+**That's it!** No API keys, no downloads, no complex setup.
 
-If you want to run locally:
+⚠️ **Demo Note**: Uses simplified authentication. Perfect for demos and trying out MCP!
 
-```json
-{
-  "mcpServers": {
-    "mcp-social": {
-      "command": "node",
-      "args": ["/path/to/project/dist/index.js"],
-      "env": {
-        "SUPABASE_URL": "your-supabase-url",
-        "SUPABASE_KEY": "your-supabase-key"
-      }
-    }
-  }
-}
+## 🎯 **Try These Demo Commands**
+
+### **Getting Started**
+```
+👤 "Create my profile for the social network" 
+🔍 "Search for other developers to follow"
+➕ "Follow alice_codes"
 ```
 
-### 3. Demo Flow
-
-Once configured, you can demonstrate these interactions:
-
-#### **Getting Started**
+### **Share Your Work**
 ```
-User: "Create my profile for the MCP social network"
-Assistant: [calls create_profile]
-
-User: "Search for other users"  
-Assistant: [calls search_users]
-
-User: "Follow someone interesting"
-Assistant: [calls follow_user]
+📝 "Post an update about my latest project"
+💻 "Share a code snippet I just wrote" 
+🏷️ "Post about React with tags ai, frontend, react"
 ```
 
-#### **Posting Content**
+### **Connect & Discover**  
 ```
-User: "Post about what I'm working on"
-Assistant: [calls post_update]
-
-User: "Share a cool code snippet I just wrote"
-Assistant: [calls post_code]
+📱 "Show me my personalized feed"
+🌍 "What's happening on the global feed?"
+❤️ "Like that post about TypeScript"
+👥 "Show me my followers and who I'm following"
 ```
 
-#### **Social Interactions**
-```
-User: "Show me my feed"
-Assistant: [calls get_feed - shows posts from followed users]
-
-User: "Like that interesting post"
-Assistant: [calls like_post with post ID]
-
-User: "Check out the global feed"
-Assistant: [calls get_global_feed]
-```
+### **What Makes This Amazing**
+- **Zero Context Switching**: Social networking happens in your coding environment
+- **Natural Language**: Just talk to your AI agent normally
+- **Real Connections**: Connect with actual developers worldwide
+- **Code-Focused**: Share snippets, projects, and technical insights
 
 ## 🎯 Demo Features
 

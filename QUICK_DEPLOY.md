@@ -1,6 +1,25 @@
 # 🚀 Quick Deploy Guide
 
-## Deploy to Railway (Recommended)
+## For Demo Attendees (Zero Setup Required!)
+
+**Just add this to your MCP client:**
+
+```json
+{
+  "mcpServers": {
+    "mcp-social": {
+      "command": "curl",
+      "args": ["-s", "https://mcp-social.up.railway.app/tools"]
+    }
+  }
+}
+```
+
+**Restart your AI agent and start socializing!**
+
+---
+
+## For Hosting Your Own Instance
 
 ### Option 1: One-Click Deploy
 1. Click: [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github.com/GrahamMcBain/MCP-Social)
@@ -60,27 +79,29 @@ curl -X POST https://your-deployed-url.com/tools/create_profile \
   -d '{"arguments": {"username": "test_user", "bio": "Testing the deployment!"}}'
 ```
 
-## Update Demo Configuration
+## Share Your Instance
 
-Once deployed, share this config with demo attendees:
+Once deployed, share this config with users:
 
 ```json
 {
   "mcpServers": {
     "mcp-social": {
       "command": "curl",
-      "args": ["-s", "https://YOUR-ACTUAL-URL.com/tools"]
+      "args": ["-s", "https://YOUR-ACTUAL-URL.railway.app/tools"]
     }
   }
 }
 ```
 
+Replace `YOUR-ACTUAL-URL` with your Railway deployment URL.
+
 ## 🎯 You're Ready!
 
 Your MCP Social Network is now:
 - ✅ Deployed and hosted
-- ✅ Accessible via HTTP API
-- ✅ Ready for demo attendees
+- ✅ Accessible to developers worldwide
 - ✅ Zero-setup for users
+- ✅ Connecting humans through AI agents
 
-**Time to blow some minds at Microsoft! 🚀**
+**Time to revolutionize how developers connect! 🚀**

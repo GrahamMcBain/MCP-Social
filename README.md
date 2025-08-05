@@ -1,25 +1,27 @@
 # MCP Social Network
 
-> **The world's first social network accessible only through AI coding agents.**
+> **Connect with developers worldwide through your AI coding agent.**
 
-A fully-featured social network built for the Model Context Protocol (MCP), enabling developers to connect, share, and engage without leaving their coding environment.
+A social network where **humans connect with humans** using AI agents as the interface. Built for the Model Context Protocol (MCP), enabling real developers to socialize, share code, and collaborate without leaving their coding environment.
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github.com/GrahamMcBain/MCP-Social)
 
-## 🚀 **One-Click Demo Setup**
+## 🚀 **30-Second Setup**
 
-For demo attendees, just add this to your MCP client config:
+Add this to your MCP client and start connecting with developers worldwide:
 
 ```json
 {
   "mcpServers": {
     "mcp-social": {
       "command": "curl",
-      "args": ["-s", "https://your-deployed-url.railway.app/tools"]
+      "args": ["-s", "https://mcp-social.up.railway.app/tools"]
     }
   }
 }
 ```
+
+**That's it!** No API keys, no complex setup. Just restart your AI agent and start socializing.
 
 ## ✨ **Features**
 
@@ -31,11 +33,11 @@ For demo attendees, just add this to your MCP client config:
 - **Engagement**: Like/unlike posts with real-time counters
 - **Discovery**: Search users and explore content
 
-### 🤖 **Agent-Native Design**
+### 🤖 **AI-Native Interface**
 - **15+ MCP Functions**: Complete social API accessible through natural language
+- **Human-to-Human**: Real people connecting via their AI agents
 - **Rich Formatting**: Posts display beautifully in AI agent interfaces  
 - **Session Management**: Persistent user context across interactions
-- **Error Handling**: Graceful failures with helpful error messages
 
 ### 🏗️ **Production Ready**
 - **Supabase Backend**: PostgreSQL with real-time triggers and counters
@@ -46,58 +48,61 @@ For demo attendees, just add this to your MCP client config:
 ## 📱 **Demo Experience**
 
 ```
-You: "Create my profile for the MCP social network"
+You: "Create my profile for the social network"
 Agent: ✅ Profile created successfully!
         Username: @demo_user
         Bio: Building cool stuff with AI
         You can now start posting and following other users!
 
-You: "Post about what I'm working on"  
+You: "Post about my React project"  
 Agent: ✅ Posted successfully!
         @demo_user (now) [ID: 1a2b3c4d]
-        "Just built an MCP social network! Mind = blown 🤯"
-        Tags: #mcp #ai #social
+        "Just shipped a React app with real-time collaboration! 🚀"
+        Tags: #react #javascript #webapp
         ❤️ 0 likes | 💬 0 replies
 
-You: "Show me what's happening globally"
+You: "Show me what other developers are working on"
 Agent: 🌍 Global Feed (3 posts)
         
         @alice_codes (2h ago) [ID: 5e6f7g8h]
-        "TIL: You can build social networks that exist entirely in your IDE!"
+        "Built an MCP tool that auto-generates API docs from code!"
         ❤️ 12 likes | 💬 3 replies
         
         ──────────────────────────────────────────────────────
         
-        @bob_dev (4h ago) [ID: 9i0j1k2l]
-        "Shipping my first MCP tool. This protocol is incredible 🔥"
+        @bob_python (4h ago) [ID: 9i0j1k2l]
+        "Finally mastered async/await patterns. Game changer! 🔥"
         ❤️ 8 likes | 💬 1 reply
 ```
 
 ## 🎯 **Why This Matters**
 
-### **Novel Interaction Paradigm**
-- First social network designed for AI-mediated interactions
-- Zero context switching - stay in your development environment
-- Natural language social commands through your coding agent
+### **Novel Human Connection Model**
+- First social network where humans connect through AI agents
+- Zero context switching - socialize while you code
+- Natural language commands make social interaction effortless
 
-### **MCP Showcase**
-- Demonstrates MCP's power for building rich, interactive applications
-- Shows how agents can become gateways to entirely new experiences
-- Proves viability of agent-native software architectures
+### **Perfect MCP Showcase**
+- Demonstrates MCP's power for building rich, multi-user applications
+- Shows how AI agents can mediate real human connections
+- Proves the potential for agent-native social experiences
 
 ### **Developer-Focused Community**
-- Content naturally revolves around coding, projects, and technical insights
-- Follow interesting developers and see what they're building
-- Share discoveries, code snippets, and development experiences
+- Connect with real developers worldwide who share your interests
+- Share code snippets, project updates, and technical discoveries
+- Build professional relationships through your coding environment
 
 ## 🛠️ **Quick Setup**
 
-### **Hosted (Recommended for Demos)**
-1. Deploy to Railway (one-click button above)
-2. Add Supabase environment variables
-3. Share the URL with demo attendees
+### **For Demo Attendees (Zero Setup)**
+Just add the MCP server URL to your agent config - no installation needed!
 
-### **Local Development**
+### **For Hosting Your Own Instance**
+1. Deploy to Railway (one-click button above)
+2. Add your Supabase environment variables
+3. Share your URL with users
+
+### **For Local Development**
 ```bash
 git clone https://github.com/GrahamMcBain/MCP-Social.git
 cd MCP-Social
