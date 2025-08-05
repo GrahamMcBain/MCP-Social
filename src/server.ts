@@ -986,41 +986,45 @@ app.post('/mcp', async (req, res) => {
   }
 });
 
-// GET /mcp - SSE stream (create session if none provided)
+// GET /mcp - SSE stream
 app.get('/mcp', (req, res) => {
-  console.log('GET /mcp request headers:', req.headers);
-  
-  // Create new session for direct SSE connection
-  const sessionId = crypto.randomUUID();
-  
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  });
+  try {
+    console.log('GET /mcp - Starting SSE connection');
+    
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
 
-  sessions.set(sessionId, { id: sessionId, stream: res });
+    // Send initialize message immediately (matching original working flow)
+    const initMessage = {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'initialize',
+      params: {
+        protocolVersion: '1.0.0',
+        capabilities: { tools: {} },
+        serverInfo: { name: 'mcp-social-network', version: '1.0.0' }
+      }
+    };
 
-  // Send initialize message immediately
-  const initMessage = {
-    jsonrpc: '2.0',
-    id: 1,
-    result: {
-      protocolVersion: '1.0.0',
-      capabilities: { tools: {} },
-      serverInfo: { name: 'mcp-social-network', version: '1.0.0' },
-      sessionId
-    }
-  };
+    res.write(`data: ${JSON.stringify(initMessage)}\n\n`);
+    console.log('Sent initialize message');
 
-  res.write(`data: ${JSON.stringify(initMessage)}\n\n`);
+    req.on('close', () => {
+      console.log('SSE connection closed');
+    });
 
-  req.on('close', () => {
-    console.log('SSE connection closed for session:', sessionId);
-    sessions.delete(sessionId);
-  });
+    req.on('error', (err) => {
+      console.error('SSE connection error:', err);
+    });
+
+  } catch (error) {
+    console.error('Error in GET /mcp:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // MCP-compatible HTTP endpoints  
