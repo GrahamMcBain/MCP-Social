@@ -3,6 +3,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { randomUUID } from 'crypto';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { Database } from './database.js';
 
@@ -39,8 +40,19 @@ app.get('/', (req, res) => {
     endpoints: {
       tools: '/tools',
       setup: '/setup',
+      session: '/session/new',
       health: '/'
     }
+  });
+});
+
+// Generate new session UUID
+app.get('/session/new', (req, res) => {
+  const sessionId = randomUUID();
+  res.json({ 
+    sessionId,
+    instructions: 'Add this UUID as X-Session-Id header in your MCP requests',
+    example: `curl -H "X-Session-Id: ${sessionId}" https://your-server.com/tools/create_profile`
   });
 });
 
@@ -79,20 +91,35 @@ function getTimeAgo(date: Date): string {
   }
 }
 
+// Helper function to validate session ID (must be UUID-like)
+function isValidSessionId(sessionId: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(sessionId);
+}
+
 // Helper function to get or create session user
 function getSessionUser(sessionId: string): string | null {
+  if (!isValidSessionId(sessionId)) {
+    return null;
+  }
   return userSessions.get(sessionId) || null;
 }
 
 function setSessionUser(sessionId: string, username: string): void {
+  if (!isValidSessionId(sessionId)) {
+    throw new Error('Invalid session ID. Please use a valid UUID.');
+  }
   userSessions.set(sessionId, username);
 }
 
 // Helper function to require auth
 function requireAuth(sessionId: string): string {
+  if (!isValidSessionId(sessionId)) {
+    throw new Error('Invalid session ID. Please generate a UUID for X-Session-Id header.');
+  }
   const user = getSessionUser(sessionId);
   if (!user) {
-    throw new Error('Please create a profile first using create_profile(username, bio)');
+    throw new Error('Please create a profile first using create_profile(username, bio). Make sure to include a unique UUID in the X-Session-Id header.');
   }
   return user;
 }
@@ -754,12 +781,25 @@ app.post('/tools/:toolName', async (req, res) => {
   try {
     const { toolName } = req.params;
     const { arguments: args } = req.body;
-    const sessionId = req.headers['x-session-id'] as string || 'default';
+    const sessionId = req.headers['x-session-id'] as string;
+    
+    if (!sessionId) {
+      return res.status(400).json({
+        content: [
+          {
+            type: 'text',
+            text: `❌ Missing X-Session-Id header. Generate one at /session/new or use a UUID.`,
+          },
+        ],
+        isError: true,
+      });
+    }
     
     const result = await handleToolCall(toolName, args, sessionId);
     res.json(result);
   } catch (error) {
-    res.status(500).json({
+    const statusCode = error instanceof Error && error.message.includes('Invalid session ID') ? 400 : 500;
+    res.status(statusCode).json({
       content: [
         {
           type: 'text',

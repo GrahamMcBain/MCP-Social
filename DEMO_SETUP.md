@@ -10,31 +10,22 @@
 
 ### 2. Super Simple Setup for Demo Attendees
 
-**For Amp/Claude Desktop - Just add this one line:**
-
-```json
-{
-  "mcpServers": {
-    "mcp-social": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/create-server", "--url", "https://your-app.railway.app"]
-    }
-  }
-}
-```
-
-**OR if you prefer the direct approach:**
+**For Amp/Claude Desktop - Just add this configuration:**
 
 ```json
 {
   "mcpServers": {
     "mcp-social": {
       "command": "curl",
-      "args": ["-s", "https://your-app.railway.app/tools"]
+      "args": ["-s", "-X", "GET", "https://mcp-social.up.railway.app/tools"]
     }
   }
 }
 ```
+
+**That's it! No API keys, no environment variables, no setup required.**
+
+⚠️ **Demo Note**: This uses a simplified authentication model. Don't share sensitive information.
 
 ### 3. Local Development (Optional)
 
