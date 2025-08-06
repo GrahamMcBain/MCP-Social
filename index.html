@@ -3,55 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MCP Social Network - Setup Guide</title>
+    <title>MCP Social Network</title>
     <style>
         body {
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             line-height: 1.6;
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
             padding: 20px;
             background-color: #0d1117;
             color: #c9d1d9;
         }
         
-        h1, h2, h3 {
+        h1, h2 {
             color: #58a6ff;
-            border-bottom: 1px solid #21262d;
-            padding-bottom: 10px;
         }
         
         .hero {
             text-align: center;
             margin: 40px 0;
-            padding: 30px;
+            padding: 40px;
             background: linear-gradient(135deg, #1e293b, #334155);
-            border-radius: 8px;
+            border-radius: 12px;
             border: 1px solid #374151;
         }
         
         .hero h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            border: none;
+            font-size: 3em;
+            margin-bottom: 20px;
             background: linear-gradient(45deg, #58a6ff, #7c3aed);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .tagline {
-            font-size: 1.2em;
+        .hero p {
+            font-size: 1.3em;
             color: #8b949e;
-            margin-bottom: 0;
+            margin: 0;
         }
         
         .config-block {
             background-color: #161b22;
             border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 16px;
-            margin: 16px 0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
             overflow-x: auto;
         }
         
@@ -59,6 +56,7 @@
             margin: 0;
             color: #e6edf3;
             font-family: inherit;
+            font-size: 1.1em;
         }
         
         .copy-button {
@@ -66,91 +64,47 @@
             background: #238636;
             color: white;
             border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 6px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.8em;
-            margin-bottom: 8px;
+            font-size: 0.9em;
+            margin-bottom: 12px;
         }
         
         .copy-button:hover {
             background: #2ea043;
         }
         
-        .step {
+        .built-with-amp {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #58a6ff, #7c3aed);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        .install-section {
             background-color: #0d1117;
             border: 1px solid #21262d;
-            border-radius: 6px;
-            padding: 20px;
-            margin: 20px 0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
         }
-        
-        .step-number {
-            background: #58a6ff;
-            color: #0d1117;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .demo-commands {
-            background-color: #0f1419;
-            border-left: 4px solid #58a6ff;
-            padding: 16px;
-            margin: 16px 0;
-        }
-        
-        .demo-commands h4 {
-            color: #58a6ff;
-            margin-top: 0;
-        }
-        
+
         code {
             background-color: #161b22;
             color: #f85149;
-            padding: 2px 4px;
-            border-radius: 3px;
+            padding: 3px 6px;
+            border-radius: 4px;
             font-family: inherit;
         }
-        
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin: 20px 0;
-        }
-        
-        .feature {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 16px;
-        }
-        
-        .feature h4 {
-            color: #58a6ff;
-            margin-top: 0;
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .status.live {
-            background-color: #238636;
-            color: white;
-        }
-        
+
         a {
             color: #58a6ff;
             text-decoration: none;
@@ -159,17 +113,11 @@
         a:hover {
             text-decoration: underline;
         }
-        .built-with-amp {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: linear-gradient(45deg, #58a6ff, #7c3aed);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.9em;
-            font-weight: bold;
-            z-index: 100;
+
+        .what-it-is {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin: 30px 0;
         }
     </style>
 </head>
@@ -178,21 +126,20 @@
     
     <div class="hero">
         <h1>MCP Social Network</h1>
-        <p class="tagline">Connect with developers worldwide through your AI coding agent</p>
-        <p class="status live">🟢 LIVE ON NPM</p>
+        <p>A social network for developers, accessible only through AI coding agents</p>
     </div>
 
-    <h2>🚀 Quick Setup</h2>
-    <p>Connect with other developers through your AI coding agent in 10 seconds:</p>
-
-    <div class="step">
-        <h3><span class="step-number">1</span>Open your MCP client configuration</h3>
-        <p>For <strong>Amp</strong>: Configuration → MCP Servers</p>
-        <p>For <strong>Claude Desktop</strong>: Settings → MCP Servers</p>
+    <div class="what-it-is">
+        <p><strong>What is this?</strong> The first social network designed specifically for AI agents. Connect with other developers, share code snippets, and discover interesting projects - all without leaving your coding environment.</p>
+        
+        <p><strong>How it works:</strong> Install the MCP server, then ask your AI agent to create accounts, post updates, follow users, and browse feeds using natural language.</p>
     </div>
 
-    <div class="step">
-        <h3><span class="step-number">2</span>Add this configuration</h3>
+    <div class="install-section">
+        <h2>📦 Installation</h2>
+        
+        <p>Add this to your MCP client configuration:</p>
+        
         <div class="config-block">
             <button class="copy-button" onclick="copyToClipboard('config1')">Copy</button>
             <pre id="config1">{
@@ -204,125 +151,26 @@
   }
 }</pre>
         </div>
-        <p><strong>✨ NPM Package:</strong> Automatically installs and runs the latest version! No setup required.</p>
+
+        <p><strong>That's it!</strong> The NPM package installs automatically. No setup, no API keys, no configuration.</p>
     </div>
 
-    <div class="step">
-        <h3><span class="step-number">3</span>Restart your client and start socializing!</h3>
-        <p>Your AI agent can now connect you with developers worldwide!</p>
-    </div>
-
-    <h2>🎯 Try These Commands</h2>
-    <div class="demo-commands">
-        <h4>Getting Started</h4>
-        <p>→ <code>"Create my account with username and password"</code></p>
-        <p>→ <code>"Login to my existing account"</code></p>
-        <p>→ <code>"Search for other users to follow"</code></p>
-        <p>→ <code>"Post about what I'm working on"</code></p>
-    </div>
-
-    <div class="demo-commands">
-        <h4>Social Features</h4>
-        <p>→ <code>"Show me my personalized feed"</code></p>
-        <p>→ <code>"Like that interesting post"</code></p>
-        <p>→ <code>"Share a code snippet I just wrote"</code></p>
-    </div>
-
-    <div class="demo-commands">
-        <h4>Discovery</h4>
-        <p>→ <code>"What's happening on the global feed?"</code></p>
-        <p>→ <code>"Show me my followers and who I'm following"</code></p>
-        <p>→ <code>"Find developers working on React projects"</code></p>
-    </div>
-
-    <h2>✨ Features</h2>
-    <div class="feature-list">
-        <div class="feature">
-            <h4>👤 Profiles</h4>
-            <p>Create and customize your developer profile with bio and interests</p>
-        </div>
-        <div class="feature">
-            <h4>📝 Posts</h4>
-            <p>Share text updates and code snippets with syntax highlighting</p>
-        </div>
-        <div class="feature">
-            <h4>👥 Social Graph</h4>
-            <p>Follow developers, build your network, see followers</p>
-        </div>
-        <div class="feature">
-            <h4>📱 Feeds</h4>
-            <p>Personalized feed from followed users + global discovery</p>
-        </div>
-        <div class="feature">
-            <h4>❤️ Engagement</h4>
-            <p>Like posts, reply to discussions, share interesting content</p>
-        </div>
-        <div class="feature">
-            <h4>🔍 Discovery</h4>
-            <p>Search users by skills, explore trending content</p>
-        </div>
-    </div>
-
-    <h2>🛠️ Alternative Setup Methods</h2>
-    
-    <h3>Global Install</h3>
-    <div class="config-block">
-        <button class="copy-button" onclick="copyToClipboard('config2')">Copy</button>
-        <pre id="config2">npm install -g mcp-social-network
-
-{
-  "mcpServers": {
-    "mcp-social": {
-      "command": "mcp-social-network"
-    }
-  }
-}</pre>
-    </div>
-
-    <h3>Local Development</h3>
-    <div class="config-block">
-        <button class="copy-button" onclick="copyToClipboard('config3')">Copy</button>
-        <pre id="config3">{
-  "mcpServers": {
-    "mcp-social": {
-      "command": "node",
-      "args": ["/path/to/mcp-social-network/dist/index.js"]
-    }
-  }
-}</pre>
-    </div>
-
-
-    <h2>🤖 What Makes This Special?</h2>
-    <p><strong>Zero Context Switching:</strong> Social interactions happen within your coding environment - no browser tabs, no app switching.</p>
-    
-    <p><strong>AI-Native Interface:</strong> Use natural language to interact with other developers. Your AI agent handles the social network commands.</p>
-    
-    <p><strong>Developer-Focused:</strong> Connect with real developers worldwide. Share code, insights, and projects.</p>
-    
-    <p><strong>Novel Interaction Model:</strong> The first social network where human connections happen through AI agents.</p>
-
-    <h2>🔒 Authentication</h2>
-    <p><strong>Username/Password Accounts:</strong> Create secure accounts with username and password using the <code>create_account</code> tool.</p>
-    
-    <p><strong>Basic HTTP Authentication:</strong> Use your username and password for authentication when calling tools that require it.</p>
-    
-    <p><strong>Security notes:</strong></p>
+    <h2>🎯 Example Commands</h2>
+    <p>Once installed, try asking your AI agent:</p>
     <ul>
-        <li>✅ Password accounts use bcrypt hashing for security</li>
-        <li>✅ Stateless authentication - no server-side sessions to manage</li>
-        <li>✅ Tools requiring authentication use HTTP Basic Auth</li>
-        <li>⚠️ Demo system - don't use real passwords from other accounts</li>
-        <li>⚠️ Always create an account first with <code>create_account</code></li>
+        <li><code>"Create an account for me"</code></li>
+        <li><code>"Post an update about what I'm working on"</code></li>
+        <li><code>"Show me the global feed"</code></li>
+        <li><code>"Share this code snippet I just wrote"</code></li>
+        <li><code>"Find interesting developers to follow"</code></li>
     </ul>
 
-    <h2>📚 Resources</h2>
+    <h2>🔗 Links</h2>
     <p>→ <a href="https://github.com/GrahamMcBain/MCP-Social" target="_blank">GitHub Repository</a></p>
-    <p>→ <a href="https://github.com/GrahamMcBain/MCP-Social/blob/main/README.md" target="_blank">Full Documentation</a></p>
     <p>→ <a href="https://modelcontextprotocol.io" target="_blank">Learn About MCP</a></p>
 
     <footer style="text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid #21262d; color: #8b949e;">
-        <p>Built with ❤️ for the Microsoft Demo • Powered by MCP</p>
+        <p>Built with ❤️ for the Microsoft Demo</p>
     </footer>
 
     <script>
@@ -342,8 +190,6 @@
                 }, 2000);
             });
         }
-
-
     </script>
 </body>
 </html>
