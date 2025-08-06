@@ -33,16 +33,7 @@ app.use('/setup', express.static('public'));
 
 // Health check endpoint
 app.get('/', (req, res) => {
-  res.json({ 
-    name: 'MCP Social Network',
-    version: '1.0.0',
-    status: 'running',
-    endpoints: {
-    tools: '/tools',
-    setup: '/setup',
-    health: '/'
-    }
-  });
+  res.sendFile('index.html', { root: '.' });
 });
 
 
