@@ -30,6 +30,7 @@ app.use(express.json());
 
 // Serve static files from public directory
 app.use('/setup', express.static('public'));
+app.use(express.static('public'));  // Also serve at root for assets
 
 // Health check endpoint
 app.get('/', (req, res) => {
