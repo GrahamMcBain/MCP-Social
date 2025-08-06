@@ -1,0 +1,9 @@
+<svg width="240" height="60" viewBox="0 0 240 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Orange/red chevron arrows - three stacked arrows pointing right -->
+  <path d="M8 15L18 25L8 35L4 31L10 25L4 19L8 15Z" fill="#FF4B1F"/>
+  <path d="M14 15L24 25L14 35L10 31L16 25L10 19L14 15Z" fill="#FF6B35"/>
+  <path d="M20 15L30 25L20 35L16 31L22 25L16 19L20 15Z" fill="#FF8A5B"/>
+  
+  <!-- "Amp" text in white -->
+  <text x="45" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="600" fill="white">Amp</text>
+</svg>

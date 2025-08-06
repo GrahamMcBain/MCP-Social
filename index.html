@@ -80,13 +80,23 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: linear-gradient(45deg, #58a6ff, #7c3aed);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 10px 16px;
+            padding: 8px 12px;
             border-radius: 8px;
             font-size: 0.9em;
             font-weight: bold;
             z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .built-with-amp img {
+            width: 80px;
+            height: auto;
         }
 
         .install-section {
@@ -122,7 +132,9 @@
     </style>
 </head>
 <body>
-    <div class="built-with-amp">Built with Amp</div>
+    <div class="built-with-amp">
+        <img src="amp-logo.svg" alt="Built with Amp">
+    </div>
     
     <div class="hero">
         <h1>MCP Social Network</h1>
