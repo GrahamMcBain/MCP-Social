@@ -92,11 +92,23 @@
             gap: 8px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .built-with-amp:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-1px);
         }
         
         .built-with-amp img {
-            width: 80px;
+            width: 60px;
             height: auto;
+        }
+        
+        .built-with-amp span {
+            color: white;
+            font-size: 0.85em;
         }
 
         .install-section {
@@ -132,9 +144,10 @@
     </style>
 </head>
 <body>
-    <div class="built-with-amp">
-        <img src="amp-logo-dark.png" alt="Built with Amp">
-    </div>
+    <a href="https://ampcode.com/code/MCP-SOCIAL?ref=graham.mcbain@sourcegraph.com" target="_blank" class="built-with-amp">
+        <span>Built with</span>
+        <img src="amp-logo-dark.png" alt="Amp">
+    </a>
     
     <div class="hero">
         <h1>MCP Social Network</h1>
